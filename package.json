@@ -1,10 +1,10 @@
 {
   "name": "200328-GCP-Qiita-demo",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Qiita に投稿した「Google Maps API で近くの目的地までの距離を取得するアプリケーションの作成：序」のサンプルコード",
+  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "serve": "browser-sync start --server --https"
   },
   "keywords": [],
   "author": "",
