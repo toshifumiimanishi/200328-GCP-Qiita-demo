@@ -26,24 +26,36 @@ const fetchDistanceMatrix = async () => {
   // ラーメン各店舗の緯度経度の取得
   const destinations = ramenData.map(({ latLng }) => latLng);
 
-  // DistanceMatrixService.getDistanceMatrix() メソッドのオプション
-  const options = {
-    origins: [{lat, lng}], // 出発地
-    destinations, // 目的地
-    travelMode: 'DRIVING' // 交通手段
+  const MAX_LIMITED_DIMENSIONS = 25;
+  const arrayChunk = (array, size = 1) => {
+    return array.reduce(
+      (acc, value, i) => (i % size ? acc : [...acc, array.slice(i, i + size)]),
+      []
+    );
   };
+  const chunkedDestinations = arrayChunk(destinations, MAX_LIMITED_DIMENSIONS);
 
-  return new Promise((resolve, reject) => {
-    service.getDistanceMatrix(options, (response, status) => {
-      if (status === 'OK') {
-        const { rows } = response;
-        const { elements } = rows[0];
-        resolve(elements);
-      } else {
-        reject(status);
-      }
+  const promises = chunkedDestinations.map(destinations => {
+    return new Promise((resolve, reject) => {
+      const options = {
+        origins: [{ lat, lng }], // 出発地
+        destinations, // 目的地
+        travelMode: 'DRIVING' // 交通手段
+      };
+
+      service.getDistanceMatrix(options, (response, status) => {
+        if (status === 'OK') {
+          const { rows } = response;
+          const { elements } = rows[0];
+          resolve(elements);
+        } else {
+          reject(status);
+        }
+      });
     });
   });
+
+  return Promise.all(promises).then(values => values.flat());
 };
 
 const initMap = async () => {
